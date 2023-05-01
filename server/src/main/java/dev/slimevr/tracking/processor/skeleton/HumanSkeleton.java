@@ -150,6 +150,9 @@ public class HumanSkeleton {
 	protected ViveEmulation viveEmulation = new ViveEmulation(this);
 	// #endregion
 
+	// #region self localization
+	protected Localizer localizer = new Localizer(this);
+
 	// #region Constructors
 	protected HumanSkeleton(
 		HumanPoseManager humanPoseManager
@@ -180,6 +183,9 @@ public class HumanSkeleton {
 			server.getResetHandler()
 		);
 		legTweaks.setConfig(server.getConfigManager().getVrConfig().getLegTweaks());
+
+		// TODO REMOVE
+		localizer.setEnabled(true);
 	}
 
 	public HumanSkeleton(
@@ -549,6 +555,7 @@ public class HumanSkeleton {
 		updateComputedTrackers();
 		tweakLegPos();
 		viveEmulation.update();
+		localizer.update();
 	}
 	// #endregion
 
