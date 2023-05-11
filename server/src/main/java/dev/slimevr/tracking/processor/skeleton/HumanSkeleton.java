@@ -183,9 +183,7 @@ public class HumanSkeleton {
 			server.getResetHandler()
 		);
 		legTweaks.setConfig(server.getConfigManager().getVrConfig().getLegTweaks());
-
-		// TODO REMOVE
-		localizer.setEnabled(true);
+		localizer.setEnabled(humanPoseManager.getToggle(SkeletonConfigToggles.SELF_LOCALIZATION));
 	}
 
 	public HumanSkeleton(
@@ -1114,6 +1112,7 @@ public class HumanSkeleton {
 			case VIVE_EMULATION -> viveEmulation.setEnabled(newValue);
 			case TOE_SNAP -> legTweaks.setToeSnapEnabled(newValue);
 			case FOOT_PLANT -> legTweaks.setFootPlantEnabled(newValue);
+			case SELF_LOCALIZATION -> localizer.setEnabled(newValue);
 		}
 	}
 
