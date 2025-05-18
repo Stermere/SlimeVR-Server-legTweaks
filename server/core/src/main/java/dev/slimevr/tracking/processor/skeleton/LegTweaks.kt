@@ -3,6 +3,7 @@ package dev.slimevr.tracking.processor.skeleton
 import com.jme3.math.FastMath
 import dev.slimevr.config.LegTweaksConfig
 import dev.slimevr.tracking.processor.Bone
+import dev.slimevr.tracking.processor.Constraint
 import dev.slimevr.tracking.processor.config.SkeletonConfigToggles
 import io.github.axisangles.ktmath.EulerAngles
 import io.github.axisangles.ktmath.EulerOrder
@@ -91,6 +92,7 @@ class LegTweaks(private val skeleton: HumanSkeleton) {
 		private set
 	var toeSnapEnabled = false
 	var footPlantEnabled = false
+	var legExtensionEnabled = false
 	private var active = false
 	private var rightLegActive = false
 	private var leftLegActive = false
@@ -103,6 +105,10 @@ class LegTweaks(private val skeleton: HumanSkeleton) {
 	private var rightToeAngle = 0.0f
 	private var rightToeTouched = false
 	private var localizerMode = false
+
+	// leg extension state
+	private var legExtensionPercentage = 0.0f
+	private var legExtensionThreshold = 0.0f
 
 	// config
 	private var config: LegTweaksConfig? = null
@@ -178,6 +184,10 @@ class LegTweaks(private val skeleton: HumanSkeleton) {
 			skeleton.humanPoseManager.getToggle(SkeletonConfigToggles.TOE_SNAP)
 		footPlantEnabled =
 			skeleton.humanPoseManager.getToggle(SkeletonConfigToggles.FOOT_PLANT)
+		legExtensionEnabled =
+			skeleton.humanPoseManager.getToggle(SkeletonConfigToggles.EXTEND_LEGS)
+		legExtensionThreshold = config!!.legExtensionThreshold
+		legExtensionPercentage = config!!.legExtensionPercentage
 	}
 
 	// tweak the position of the legs based on data from the last frames
@@ -268,6 +278,24 @@ class LegTweaks(private val skeleton: HumanSkeleton) {
 		skeleton.computedRightFootTracker?.position = rightFootPosition
 	}
 
+	// When the legs are straight or very close to it extend the leg bones ever so slightly,
+	// this can help an in-game avatars legs stay straight when in this position as opposed to bending slightly due to
+	// imperfect mapping from the slimeVR skeleton to the avatar's skeleton.
+	fun extendStraightLegs() {
+		if (bufferInvalid) {
+			skeleton.leftUpperLegBone.scalar = 1.0f
+			skeleton.leftLowerLegBone.scalar = 1.0f
+			skeleton.rightUpperLegBone.scalar = 1.0f
+			skeleton.rightLowerLegBone.scalar = 1.0f
+			return
+		}
+
+		extendStraightLeg(skeleton.leftUpperLegBone, skeleton.leftLowerLegBone)
+		extendStraightLeg(skeleton.rightUpperLegBone, skeleton.rightLowerLegBone)
+
+		skeleton.hipBone.update()
+	}
+
 	// update the hyperparameters with the config
 	private fun updateHyperParameters(newStrength: Float) {
 		LegTweaksBuffer.setSkatingVelocityThreshold(
@@ -317,6 +345,9 @@ class LegTweaks(private val skeleton: HumanSkeleton) {
 
 	// updates the object with the latest data from the skeleton
 	private fun preUpdate() {
+		// Do any modifications to skeleton before meddling with the positional tracker output
+		extendStraightLegs()
+
 		// populate the vectors with the latest data
 		setVectors()
 
@@ -519,6 +550,25 @@ class LegTweaks(private val skeleton: HumanSkeleton) {
 		if (bufferHead.rightLegState == LegTweaksBuffer.UNLOCKED) {
 			rightFootPosition = correctUnlockedFootTracker(rightFootPosition, bufPrev.rightFootPosition, bufPrev.rightFootPositionCorrected, bufferHead.rightFootVelocity, rightFramesUnlocked)
 		}
+	}
+
+	private fun extendStraightLeg(upperLeg: Bone, lowerLeg: Bone) {
+		// First determine how straight the leg is
+		val localRotation = Constraint.getLocalRotation(lowerLeg.getGlobalRotation(), lowerLeg)
+		val (swingQ, _) = Constraint.decompose(localRotation, Vector3.NEG_Y)
+		val magnitudeSq = swingQ.xyz.lenSq()
+
+		// Then update the lengths based on that
+		if (magnitudeSq >= legExtensionThreshold) {
+			upperLeg.scalar = 1.0f
+			lowerLeg.scalar = 1.0f
+			return
+		}
+
+		val scalarAddition = legExtensionPercentage * ((legExtensionThreshold - magnitudeSq) / legExtensionThreshold)
+
+		upperLeg.scalar = 1.0f + scalarAddition
+		lowerLeg.scalar = 1.0f + scalarAddition
 	}
 
 	private fun correctUnlockedFootTracker(footPosition: Vector3, previousFootPosition: Vector3, previousFootPositionCorrected: Vector3, footVelocity: Vector3, framesUnlocked: Int): Vector3 {

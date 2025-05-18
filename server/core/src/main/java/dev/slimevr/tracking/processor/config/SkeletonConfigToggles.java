@@ -17,7 +17,8 @@ public enum SkeletonConfigToggles {
 	SELF_LOCALIZATION(10, "Self Localization", "selfLocalization", false),
 	USE_POSITION(11, "Use Position", "usePosition", true),
 	ENFORCE_CONSTRAINTS(12, "Enforce Constraints", "enforceConstraints", true),
-	CORRECT_CONSTRAINTS(13, "Correct Constraints", "correctConstraints", true),;
+	CORRECT_CONSTRAINTS(13, "Correct Constraints", "correctConstraints", true),
+	EXTEND_LEGS(14, "Extend Legs", "extendLegs", false),;
 
 	public static final SkeletonConfigToggles[] values = values();
 	private static final Map<String, SkeletonConfigToggles> byStringVal = new HashMap<>();

@@ -155,11 +155,24 @@ class Bone(val boneType: BoneType, val rotationConstraint: Constraint) {
 	 * This is the local translation of the tail node.
 	 * This is also the difference between the head position and the tail position.
 	 */
+	private var rawLength = 0.0f
 	var length: Float
 		get() = tailNode.localTransform.translation.len()
-		set(len) = updateLength(len)
+		set(len) {
+			rawLength = len
+			updateLength(len, scalar)
+		}
 
-	private fun updateLength(length: Float) {
-		tailNode.localTransform.translation = Vector3(0f, -length, 0f)
+	/**
+	 * A scalar that is applied to the length of the bone
+	 */
+	var scalar: Float = 1.0f
+		set(sca) {
+			field = sca
+			updateLength(rawLength, sca)
+		}
+
+	private fun updateLength(length: Float, scalar: Float) {
+		tailNode.localTransform.translation = Vector3(0f, -length * scalar, 0f)
 	}
 }

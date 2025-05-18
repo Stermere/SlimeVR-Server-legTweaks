@@ -90,19 +90,19 @@ class Constraint(
 				ConstraintType.LOOSE_HINGE -> looseHingeConstraint
 			}
 
-		private fun getLocalRotation(rotation: Quaternion, thisBone: Bone): Quaternion {
+		fun getLocalRotation(rotation: Quaternion, thisBone: Bone): Quaternion {
 			val parent = thisBone.parent!!
 			val localRotationOffset = parent.rotationOffset.inv() * thisBone.rotationOffset
 			return (parent.getGlobalRotation() * localRotationOffset).inv() * rotation
 		}
 
-		private fun getWorldRotationFromLocal(rotation: Quaternion, thisBone: Bone): Quaternion {
+		fun getWorldRotationFromLocal(rotation: Quaternion, thisBone: Bone): Quaternion {
 			val parent = thisBone.parent!!
 			val localRotationOffset = parent.rotationOffset.inv() * thisBone.rotationOffset
 			return (parent.getGlobalRotation() * localRotationOffset * rotation).unit()
 		}
 
-		private fun decompose(
+		fun decompose(
 			rotation: Quaternion,
 			twistAxis: Vector3,
 		): Pair<Quaternion, Quaternion> {
@@ -112,7 +112,7 @@ class Constraint(
 			return Pair(swing, twist)
 		}
 
-		private fun constrain(rotation: Quaternion, angle: Float): Quaternion {
+		fun constrain(rotation: Quaternion, angle: Float): Quaternion {
 			// Use angle to get the maximum magnitude the vector part of rotation can be
 			// before it has violated a constraint.
 			// Multiplying by 0.5 uniquely maps angles 0-180 degrees to 0-1 which works
@@ -131,7 +131,7 @@ class Constraint(
 			return rot.unit()
 		}
 
-		private fun constrain(rotation: Quaternion, minAngle: Float, maxAngle: Float, axis: Vector3): Quaternion {
+		fun constrain(rotation: Quaternion, minAngle: Float, maxAngle: Float, axis: Vector3): Quaternion {
 			val magnitudeMin = sin(minAngle * 0.5f)
 			val magnitudeMax = sin(maxAngle * 0.5f)
 			val magnitudeSqrMin = magnitudeMin * magnitudeMin * if (minAngle >= 0f) 1f else -1f

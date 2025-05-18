@@ -519,6 +519,7 @@ class HumanSkeleton(
 
 		updateTransforms()
 		updateBones()
+		legTweaks.extendStraightLegs()
 		if (enforceConstraints) {
 			// TODO re-enable toggling correctConstraints once
 			// https://github.com/SlimeVR/SlimeVR-Server/issues/1297 is solved
@@ -1124,7 +1125,7 @@ class HumanSkeleton(
 	}
 
 	// Update the output trackers
-	private fun updateComputedTrackers() {
+	fun updateComputedTrackers() {
 		updateComputedTracker(computedHeadTracker, headTrackerBone)
 		updateComputedTracker(computedChestTracker, chestTrackerBone)
 		updateComputedTracker(computedHipTracker, hipTrackerBone)
@@ -1176,6 +1177,8 @@ class HumanSkeleton(
 			SkeletonConfigToggles.ENFORCE_CONSTRAINTS -> enforceConstraints = newValue
 
 			SkeletonConfigToggles.CORRECT_CONSTRAINTS -> correctConstraints = newValue
+
+			SkeletonConfigToggles.EXTEND_LEGS -> legTweaks.legExtensionEnabled = newValue
 		}
 	}
 

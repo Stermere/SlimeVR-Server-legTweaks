@@ -191,7 +191,8 @@ public class RPCSettingsBuilder {
 				humanPoseManager.getToggle(SkeletonConfigToggles.SELF_LOCALIZATION),
 				false,
 				humanPoseManager.getToggle(SkeletonConfigToggles.ENFORCE_CONSTRAINTS),
-				humanPoseManager.getToggle(SkeletonConfigToggles.CORRECT_CONSTRAINTS)
+				humanPoseManager.getToggle(SkeletonConfigToggles.CORRECT_CONSTRAINTS),
+				humanPoseManager.getToggle(SkeletonConfigToggles.EXTEND_LEGS)
 			);
 		int ratiosOffset = ModelRatios
 			.createModelRatios(
@@ -207,7 +208,9 @@ public class RPCSettingsBuilder {
 		int legTweaksOffset = LegTweaksSettings
 			.createLegTweaksSettings(
 				fbb,
-				legTweaksConfig.getCorrectionStrength()
+				legTweaksConfig.getCorrectionStrength(),
+				legTweaksConfig.getLegExtensionPercentage(),
+				legTweaksConfig.getLegExtensionThreshold()
 			);
 		int skeletonConfigOffset = SkeletonHeight
 			.createSkeletonHeight(

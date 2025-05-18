@@ -78,6 +78,7 @@ export type SettingsForm = {
     usePosition: boolean;
     enforceConstraints: boolean;
     correctConstraints: boolean;
+    extendLegs: boolean;
   };
   ratios: {
     imputeWaistFromChestHip: number;
@@ -102,6 +103,8 @@ export type SettingsForm = {
   };
   legTweaks: {
     correctionStrength: number;
+    legExtensionPercentage: number;
+    legExtensionThreshold: number;
   };
   resetsSettings: {
     resetMountingFeet: boolean;
@@ -140,6 +143,7 @@ const defaultValues: SettingsForm = {
     usePosition: true,
     enforceConstraints: true,
     correctConstraints: true,
+    extendLegs: false,
   },
   ratios: {
     imputeWaistFromChestHip: 0.3,
@@ -169,7 +173,11 @@ const defaultValues: SettingsForm = {
     mountingResetTaps: 3,
     numberTrackersOverThreshold: 1,
   },
-  legTweaks: { correctionStrength: 0.3 },
+  legTweaks: {
+    correctionStrength: 0.3,
+    legExtensionPercentage: 0.06,
+    legExtensionThreshold: 0.1,
+  },
   resetsSettings: {
     resetMountingFeet: false,
     armsMountingResetMode: 0,
@@ -250,6 +258,7 @@ export function GeneralSettings() {
       toggles.usePosition = values.toggles.usePosition;
       toggles.enforceConstraints = values.toggles.enforceConstraints;
       toggles.correctConstraints = values.toggles.correctConstraints;
+      toggles.extendLegs = values.toggles.extendLegs;
       modelSettings.toggles = toggles;
     }
 
@@ -273,6 +282,9 @@ export function GeneralSettings() {
     if (values.legTweaks) {
       const legTweaks = new LegTweaksSettingsT();
       legTweaks.correctionStrength = values.legTweaks.correctionStrength;
+      legTweaks.legExtensionThreshold = values.legTweaks.legExtensionThreshold;
+      legTweaks.legExtensionPercentage =
+        values.legTweaks.legExtensionPercentage;
       modelSettings.legTweaks = legTweaks;
     }
 
@@ -424,6 +436,12 @@ export function GeneralSettings() {
         correctionStrength:
           settings.modelSettings.legTweaks.correctionStrength ||
           defaultValues.legTweaks.correctionStrength,
+        legExtensionThreshold:
+          settings.modelSettings.legTweaks.legExtensionThreshold ||
+          defaultValues.legTweaks.legExtensionThreshold,
+        legExtensionPercentage:
+          settings.modelSettings.legTweaks.legExtensionPercentage ||
+          defaultValues.legTweaks.legExtensionPercentage,
       };
     }
 
@@ -942,7 +960,53 @@ export function GeneralSettings() {
                 )}
               />
             </div>
-
+            <div className="flex flex-col pt-2 pb-3">
+              <Typography bold>
+                {l10n.getString(
+                  'settings-general-fk_settings-leg_tweak-leg_extension'
+                )}
+              </Typography>
+              <Typography color="secondary">
+                {l10n.getString(
+                  'settings-general-fk_settings-leg_tweak-leg_extension-description'
+                )}
+              </Typography>
+            </div>
+            <div className="grid sm:grid-cols-1 gap-3 pb-4">
+              <CheckBox
+                variant="toggle"
+                outlined
+                control={control}
+                name="toggles.extendLegs"
+                label={l10n.getString(
+                  'settings-general-fk_settings-leg_tweak-extend_legs'
+                )}
+              />
+              <div className="grid sm:grid-cols-2 gap-3 pb-4">
+                <NumberSelector
+                  control={control}
+                  name="legTweaks.legExtensionPercentage"
+                  label={l10n.getString(
+                    'settings-general-fk_settings-leg_tweak-leg_extension-percentage'
+                  )}
+                  valueLabelFormat={(value) => percentageFormat.format(value)}
+                  min={0.0}
+                  max={0.5}
+                  step={0.01}
+                />
+                <NumberSelector
+                  control={control}
+                  name="legTweaks.legExtensionThreshold"
+                  label={l10n.getString(
+                    'settings-general-fk_settings-leg_tweak-leg_extension-threshold'
+                  )}
+                  valueLabelFormat={(value) => percentageFormat.format(value)}
+                  min={0.0}
+                  max={0.5}
+                  step={0.01}
+                />
+              </div>
+            </div>
             <div className="flex flex-col pt-2 pb-3">
               <Typography bold>
                 {l10n.getString('settings-general-fk_settings-arm_fk')}

@@ -255,6 +255,7 @@ class RPCSettingsHandler(var rpcHandler: RPCHandler, var api: ProtocolAPI) {
 				hpm.setToggle(SkeletonConfigToggles.SELF_LOCALIZATION, toggles.selfLocalization())
 				hpm.setToggle(SkeletonConfigToggles.ENFORCE_CONSTRAINTS, toggles.enforceConstraints())
 				hpm.setToggle(SkeletonConfigToggles.CORRECT_CONSTRAINTS, toggles.correctConstraints())
+				hpm.setToggle(SkeletonConfigToggles.EXTEND_LEGS, toggles.extendLegs())
 			}
 
 			if (ratios != null) {
@@ -312,6 +313,12 @@ class RPCSettingsHandler(var rpcHandler: RPCHandler, var api: ProtocolAPI) {
 			if (legTweaks != null) {
 				if (legTweaks.hasCorrectionStrength()) {
 					legTweaksConfig.correctionStrength = legTweaks.correctionStrength()
+				}
+				if (legTweaks.hasLegExtensionPercentage()) {
+					legTweaksConfig.legExtensionPercentage = legTweaks.legExtensionPercentage()
+				}
+				if (legTweaks.hasLegExtensionThreshold()) {
+					legTweaksConfig.legExtensionThreshold = legTweaks.legExtensionThreshold()
 				}
 				api.server.humanPoseManager.updateLegTweaksConfig()
 			}
